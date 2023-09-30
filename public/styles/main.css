@@ -1,0 +1,70 @@
+:root {
+	--term-colour: #00ff00;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	color: var(--term-colour);
+	background: #111;
+	font-family: monospace;
+	font-size: 12px;
+}
+
+main {
+	margin: 1rem;
+	border: 1px solid var(--term-colour);
+}
+
+pre#content {
+	height: calc(100vh - 66px);
+	margin: 0;
+	padding: 1rem;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	white-space: break-spaces;
+	line-break: anywhere;
+	text-shadow: 0 0 1em, 0 0 3em;
+}
+
+div#carat {
+	width: .5em;
+	height: .9em;
+	display: inline-block;
+	background: var(--term-colour);
+	transform: translateY(1px);
+	animation: linear .5s infinite forwards carat-blink;
+}
+
+@keyframes carat-blink {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+div#overlay {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background-image: linear-gradient(180deg, rgba(0,0,0,0) 15%, rgb(0, 0, 0) 40%, rgb(0, 0, 0) 60%, rgba(0,0,0,0) 85%);
+	background-size: 100vw .2em;
+	background-repeat: repeat;
+	opacity: .5;
+	pointer-events: none;
+	animation: linear .05s infinite alternate overlay-flicker;
+	mix-blend-mode: overlay;
+}
+
+@keyframes overlay-flicker {
+	from {
+		opacity: .5;
+	}
+	to {
+		opacity: .6;
+	}
+}
