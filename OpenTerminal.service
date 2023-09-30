@@ -7,7 +7,8 @@ Environment="PORT=443"
 Environment="SSL_CERT=/certs/arimelody.me/arimelody.me.crt"
 Environment="SSL_KEY=/certs/arimelody.me/arimelody.me.key"
 Type=simple
-ExecStart=/usr/bin/npm run start
+ExecStart=/usr/bin/node /srv/openterminal/server/main.js
+WorkingDirectory=/srv/openterminal
 Restart=on-failure
 
 [Install]
