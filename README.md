@@ -24,4 +24,5 @@ jokes aside- while i do absolutely see how an open, self-moderated text buffer i
 ### "maybe" roadmap
 
 - master server (anyone can host a channel and post to the MS)
+- channel logs (for recovery in the event of a crash, as an optional feature)
 
