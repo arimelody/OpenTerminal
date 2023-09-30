@@ -1,6 +1,7 @@
 var buffer = "";
 var send_buffer = "";
 var content;
+var mobile_input;
 var client;
 var pre_buffer_chars = 0;
 var term_interval = 10;
@@ -10,7 +11,7 @@ function start() {
 	console.log("%chello, world!", "color: #b7fd49; font-size: 3rem; font-weight: bold");
 	console.log(
 `welcome to OpenTerminal!
-home to a little shared text buffer.
+home to an online terminal and communal text buffer.
 
 i hope you enjoy your stay here!
 to help you feel a little more comfortable, i've prepared some commands for you:
@@ -31,6 +32,11 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 	}
 
 	content = document.getElementById("content");
+	mobile_input = document.getElementById("mobile-input");
+
+	content.addEventListener("click", () => {
+		mobile_input.focus();
+	});
 
 	buffer += "Connecting to the server...";
 	
@@ -52,6 +58,8 @@ function loop() {
 		send_buffer = send_buffer.substring(1);
 	}
 
+	mobile_input.value = content.innerText;
+
 	setTimeout(loop, term_interval);
 }
 
@@ -72,7 +80,7 @@ function connect() {
 	});
 
 	client.addEventListener('close', () => {
-		insert_text("\n\n[CONNECTION LOST]");
+		insert_text("\n\n[CONNECTION LOST, PLEASE REFRESH]");
 	});
 }
 
@@ -83,8 +91,10 @@ function insert_text(text) {
 	if (text == "\x00") {
 		content.innerText = "";
 		pre_buffer_chars = 0;
-	} else if (text == "\b" && content.innerText.length > pre_buffer_chars) {
-		content.innerText = content.innerText.slice(0, content.innerText.length - 1);
+	} else if (text == "\b") {
+		if (content.innerText.length > pre_buffer_chars) {
+			content.innerText = content.innerText.slice(0, content.innerText.length - 1);
+		}
 	} else {
 		content.innerText += text;
 	} 

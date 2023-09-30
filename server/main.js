@@ -29,13 +29,15 @@ const motds = [
 	"how's the weather?",
 	"with each web request, my server room grows hotter.",
 	"mobile support coming later probably!",
+	"there is science to do...",
+	"now fully open-source!",
+	"somehow not the worst communication app!",
 ];
 
 const STATIC_PATH = path.join(process.cwd(), "public");
 
 const banner =
-`OpenTerminal v0.1.0
-made with <3 by ari melody
+`Welcome to OpenTerminal!
 
 `;
 
@@ -43,7 +45,8 @@ const PORT = process.env.PORT || 8080;
 let sockets = [];
 
 let buffer = "";
-let MAX_BUFFER_SIZE = 10240;
+const MAX_BUFFER_SIZE = 10240;
+const MAX_MESSAGE_LENGTH = 64;
 
 async function get_file(url) {
 	const paths = [STATIC_PATH, url];
@@ -73,22 +76,25 @@ const server = https.createServer(config, async (req, res) => {
 
 const wss = new Websocket.Server({ server });
 wss.on('connection', socket => {
-	socket.send(banner + motds[Math.floor(Math.random() * motds.length)] + "\n\n");
+	socket.send(`${banner}/* ${motds[Math.floor(Math.random() * motds.length)]} */\n\n`);
 	socket.send(buffer);
 
 	sockets.push(socket);
 
-	console.log(`new connection.\n\tcurrent connections: ${sockets.length}`);
+	// console.log(`new connection.\n\tcurrent connections: ${sockets.length}`);
 
 	socket.on('message', handle_message);
 
 	socket.on('close', () => {
 		sockets = sockets.filter(s => s !== socket);
-		console.log(`connection closed.\n\tcurrent connections: ${sockets.length}`);
+		// console.log(`connection closed.\n\tcurrent connections: ${sockets.length}`);
 	});
 });
 
 function handle_message(msg) {
+	if (msg.length > MAX_MESSAGE_LENGTH) {
+		return;
+	}
 	if (msg == '\b') {
 		buffer = buffer.slice(0, buffer.length - 1);
 		send_text('\b');
@@ -99,9 +105,6 @@ function handle_message(msg) {
 	if (msg == '\n') {
 		buffer += '\n';
 		send_text('\n');
-		return;
-	}
-	if (msg.length > 1) {
 		return;
 	}
 
