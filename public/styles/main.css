@@ -1,19 +1,20 @@
 :root {
-	--term-colour: #00ff00;
+	--colour: #a6e3a1;
+	--bgcolour: #1e1e2e;
 }
 
 body {
 	margin: 0;
 	padding: 0;
-	color: var(--term-colour);
-	background: #111;
+	color: var(--colour); 
+	background-color: var(--bgcolour);
 	font-family: monospace;
 	font-size: 12px;
 }
 
 main {
 	margin: 1rem;
-	border: 1px solid var(--term-colour);
+	border: 1px solid var(--colour);
 }
 
 pre#content {
@@ -31,7 +32,7 @@ div#carat {
 	width: .5em;
 	height: .9em;
 	display: inline-block;
-	background: var(--term-colour);
+	background: var(--colour);
 	transform: translateY(1px);
 	animation: linear .5s infinite forwards carat-blink;
 }

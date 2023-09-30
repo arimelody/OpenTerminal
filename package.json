@@ -1,0 +1,23 @@
+{
+  "name": "openterminal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./server/main.js",
+  "scripts": {
+    "start": "node ./server/main.js",
+    "dev": "nodemon ./server/main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mellodoot/openterminal.git"
+  },
+  "author": "ari melody",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mellodoot/openterminal/issues"
+  },
+  "homepage": "https://github.com/mellodoot/openterminal#readme",
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
+}
