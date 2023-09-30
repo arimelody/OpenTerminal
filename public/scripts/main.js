@@ -56,7 +56,7 @@ function loop() {
 }
 
 function connect() {
-	client = new WebSocket("wss://localhost:8080");
+	client = new WebSocket("wss://" + window.location.host);
 
 	client.addEventListener('open', () => {
 		// insert_text('\x00');
