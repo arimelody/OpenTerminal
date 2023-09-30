@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenTerminal Server
+After=network.target
+
+[Service]
+Environment="PORT=443"
+Environment="SSL_CERT=/certs/arimelody.me/arimelody.me.crt"
+Environment="SSL_KEY=/certs/arimelody.me/arimelody.me.key"
+Type=simple
+ExecStart=/usr/bin/npm run start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

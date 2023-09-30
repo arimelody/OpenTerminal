@@ -4,8 +4,8 @@ const path = require('path');
 const Websocket = require('ws');
 
 const config = {
-	cert: fs.readFileSync('./certs/cert.crt'),
-	key: fs.readFileSync('./certs/cert.key'),
+	cert: fs.readFileSync(process.env.SSL_CERT || './certs/cert.crt'),
+	key: fs.readFileSync(process.env.SSL_KEY || './certs/cert.key'),
 }
 
 const MIME_TYPES = {
@@ -39,6 +39,7 @@ made with <3 by ari melody
 
 `;
 
+const PORT = process.env.PORT || 8080;
 let sockets = [];
 
 let buffer = "";
@@ -114,7 +115,9 @@ function handle_message(msg) {
 	*/
 }
 
-server.listen(8080);
+server.listen(PORT, () => {
+	console.log(`OpenTerminal is now LIVE on https://127.0.0.1:${PORT}!`);
+});
 
 function send_text(text) {
 	sockets.forEach(s => s.send(text));
