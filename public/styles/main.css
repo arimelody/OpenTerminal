@@ -28,16 +28,16 @@ pre#content {
 	text-shadow: 0 0 1em, 0 0 3em;
 }
 
-div#carat {
+div#caret {
 	width: .5em;
 	height: .9em;
 	display: inline-block;
 	background: var(--colour);
 	transform: translateY(1px);
-	animation: linear .5s infinite forwards carat-blink;
+	animation: linear .5s infinite forwards caret-blink;
 }
 
-@keyframes carat-blink {
+@keyframes caret-blink {
 	from {
 		opacity: 1;
 	}
