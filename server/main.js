@@ -41,6 +41,7 @@ const MOTDS = [
 	"there is science to do...",
 	"now fully open-source!",
 	"somehow not the worst communication app!",
+	"\"oh this is like nano but multiplayer\"",
 ];
 
 const STATIC_PATH = path.join(process.cwd(), "public");
@@ -57,10 +58,18 @@ let buffer = "";
 const MAX_BUFFER_SIZE = 10240;
 const MAX_MESSAGE_LENGTH = 1024;
 
+/**
+ * simple file fetching for the HTTPS server
+ */
 async function get_file(url) {
+	// ignore query params...not very helpful when getting files!
+	url = url.split("?")[0];
+
 	const paths = [STATIC_PATH, url];
 	if (url.endsWith("/")) paths.push("index.html");
 	const file_path = path.join(...paths);
+
+	// check for path traversal. path traversal is...bad.
 	const path_traversal = !file_path.startsWith(STATIC_PATH);
 	const exists = await fs.promises.access(file_path).then(...[() => true, () => false]);
 	if (path_traversal || !exists) return false;
@@ -98,7 +107,7 @@ wss.on('connection', socket => {
 		colour: false,
 		sticky: true,
 	}));
-	if (buffer) {
+	if (buffer.length > 0) {
 		socket.send(JSON.stringify({
 			type: DATA_TYPES.buffer,
 			data: buffer,
