@@ -11,12 +11,13 @@ var pre_buffer_chars = 0;
 var server_url = "";
 
 const DATA_TYPES = {
-	text: 0,
-	colour: 1,
-	buffer: 2,
-	backspace: 3,
-	backword: 4,
-	arrow: 5,
+	ping: 0,
+	text: 1,
+	colour: 2,
+	buffer: 3,
+	backspace: 4,
+	backword: 5,
+	arrow: 6,
 };
 
 function start() {
@@ -108,6 +109,9 @@ function handle_message(data) {
 	const is_at_bottom = content.scrollHeight - content.offsetHeight - content.scrollTop < 10;
 	
 	switch (data.type) {
+		case DATA_TYPES.ping:
+			client.send(JSON.stringify({type: DATA_TYPES.ping}));
+			break;
 		case DATA_TYPES.colour:
 			my_colour = data.colour;
 			console.log(`%cColour has been changed to ${my_colour}`, `color: ${my_colour}`);
@@ -253,7 +257,7 @@ function handle_paste(event) {
 		type: DATA_TYPES.text,
 		text: paste,
 	});
-	content.scrollTop = content.scrollHeight - content.offsetHeight - 28;
+	content.scrollTop = content.scrollHeight - content.offsetHeight;
 }
 
 const PALETTE = {

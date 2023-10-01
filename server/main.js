@@ -21,12 +21,13 @@ const MIME_TYPES = {
 };
 
 const DATA_TYPES = {
-	text: 0,
-	colour: 1,
-	buffer: 2,
-	backspace: 3,
-	backword: 4,
-	arrow: 5,
+	ping: 0,
+	text: 1,
+	colour: 2,
+	buffer: 3,
+	backspace: 4,
+	backword: 5,
+	arrow: 6,
 };
 
 const MOTDS = [
@@ -46,16 +47,27 @@ const MOTDS = [
 
 const STATIC_PATH = path.join(process.cwd(), "public");
 
-const banner =
+const BANNER =
 `Welcome to OpenTerminal!
 
 `;
+const FAKE_CRASH =
+`
+
+=========================================
+This copy of OpenTerminal is not genuine.
+Please acquire a genuine copy.
+This connection will now terminate.
+=========================================
+`;
+
 
 const PORT = process.env.PORT || 8080;
+const PING_INTERVAL = 10000;
 let sockets = [];
 
 let buffer = "";
-const MAX_BUFFER_SIZE = 10240;
+const MAX_BUFFER_SIZE = 1024 * 1000;
 const MAX_MESSAGE_LENGTH = 1024;
 
 /**
@@ -103,7 +115,7 @@ wss.on('connection', socket => {
 	*/
 	socket.send(JSON.stringify({
 		type: DATA_TYPES.text,
-		text: `${banner}/* ${MOTDS[Math.floor(Math.random() * MOTDS.length)]} */\n\n`,
+		text: `${BANNER}/* ${MOTDS[Math.floor(Math.random() * MOTDS.length)]} */\n\n`,
 		colour: false,
 		sticky: true,
 	}));
@@ -114,18 +126,40 @@ wss.on('connection', socket => {
 		}));
 	}
 
+	const ping_interval = setInterval(
+		function() {
+			socket.send(JSON.stringify({
+				type: DATA_TYPES.ping,
+			}))
+		}, PING_INTERVAL);
+	socket.ping_interval = ping_interval;
+
 	sockets.push(socket);
 
 	// console.log(`new connection.\n\tcurrent connections: ${sockets.length}`);
 
-	socket.on('message', event => { handle_message(JSON.parse(event), socket) });
+	socket.on('message', event => {
+		try {
+			handle_message(JSON.parse(event), socket)
+		} catch (error) {
+			socket.send(JSON.stringify({
+				type: DATA_TYPES.text,
+				text: FAKE_CRASH,
+			}));
+			console.error(error);
+		}
+	});
 
 	socket.on('close', () => {
+		clearInterval(socket.ping_interval);
 		sockets = sockets.filter(s => s !== socket);
 		// console.log(`connection closed.\n\tcurrent connections: ${sockets.length}`);
 	});
 });
 
+/**
+ * handles parsed JSON data sent by the client.
+ */
 function handle_message(data, user) {
 	switch (data.type) {
 		case DATA_TYPES.backword:
@@ -149,6 +183,11 @@ function handle_message(data, user) {
 				return;
 			}
 			if (data.text.length > MAX_MESSAGE_LENGTH) {
+				user.send(JSON.stringify({
+					type: DATA_TYPES.text,
+					text: "bleeeehhhh :P\n(message too long!)\n",
+				}))
+				user.close();
 				return;
 			}
 			block = {
@@ -161,12 +200,15 @@ function handle_message(data, user) {
 	}
 
 	if (buffer.length > MAX_BUFFER_SIZE) {
-		send_as_server(`\n\nSERVER: This channel's maximum buffer length has been hit (${MAX_BUFFER_SIZE}).\n` +
+		broadcast_as_server(`\n\nSERVER: This channel's maximum buffer length has been hit (${MAX_BUFFER_SIZE}).\n` +
 				`You will need to make more room, or the server will have to be restarted.\n` +
 				`Apologies for the inconvenience!`)
 	}
 }
 
+/**
+ * generates a random hexadecimal colour value (ex. #ff00ff)
+ */
 function generate_colour() {
 	let result = '#';
 	let hexref = '0123456789abcdef';
@@ -180,7 +222,10 @@ server.listen(PORT, () => {
 	console.log(`OpenTerminal is now LIVE on https://127.0.0.1:${PORT}!`);
 });
 
-function send_as_server(message) {
+/**
+ * sends a server-wide message to all connected clients.
+ */
+function broadcast_as_server(message) {
 	broadcast(JSON.stringify({
 		type: DATA_TYPES.text,
 		text: message,
@@ -188,6 +233,9 @@ function send_as_server(message) {
 	}));
 }
 
+/**
+ * sends raw data to all connected clients.
+ */
 function broadcast(data) {
 	sockets.forEach(s => s.send(data));
 }

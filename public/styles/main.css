@@ -52,14 +52,14 @@ footer {
 	display: flex;
 	gap: 1em;
 	align-items: center;
+	justify-content: space-between;
 }
 
 footer ul {
-	width: 100%;
 	margin: 0;
 	padding: 0;
 	display: flex;
-	justify-content: space-between;
+	gap: 1em;
 }
 
 footer li {
