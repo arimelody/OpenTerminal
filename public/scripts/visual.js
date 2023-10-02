@@ -51,7 +51,7 @@ const PALETTE = {
  * sets the colour palette using the name ("example.palette") or reference to a palette (PALETTE.example)
  */
 function set_palette(palette) {
-	if (typeof(palette) === "object" && Array.isArray(palette)) {
+	if (palette.constructor == Array) {
 		set_colours(palette[0], palette[1]);
 		console.log(`Palette changed to [${palette}]`);
 		return true;
