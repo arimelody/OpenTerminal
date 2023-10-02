@@ -50,6 +50,7 @@ export function bind() {
 	const dropdown = document.getElementById("colours-dropdown");
 
 	colours_toggle.addEventListener("click", () => {
+		colours_toggle.classList.toggle("active");
 		dropdown.classList.toggle("active");
 	});
 

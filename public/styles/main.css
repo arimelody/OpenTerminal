@@ -91,10 +91,6 @@ header a {
 	cursor: pointer;
 }
 
-a#colours {
-	
-}
-
 ul#colours-dropdown {
 	position: absolute;
 	top: 2.5em;
