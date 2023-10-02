@@ -67,11 +67,19 @@ header ul {
 footer li,
 header li {
 	list-style: none;
+}
+
+footer li a,
+header li a,
+footer li:not(:has(a)),
+header li:not(:has(a)) {
 	opacity: .5;
 }
 
-footer li:has(a):hover,
-header li:has(a):hover {
+footer a:hover,
+header a:hover,
+footer a.active,
+header a.active {
 	text-shadow: 0 0 1em, 0 0 3em;
 	opacity: 1;
 }
@@ -81,6 +89,41 @@ header a {
 	color: var(--colour);
 	text-decoration: none;
 	cursor: pointer;
+}
+
+a#colours {
+	
+}
+
+ul#colours-dropdown {
+	position: absolute;
+	top: 2.5em;
+	right: 1.3em;
+	padding: calc(1rem - .25em);
+	display: none;
+	flex-direction: column;
+	text-align: right;
+	gap: 0;
+	border: 1px solid var(--colour);
+	background: var(--bgcolour);
+	max-height: 18em;
+	overflow-y: scroll;
+}
+
+ul#colours-dropdown.active {
+	display: flex;
+}
+
+ul#colours-dropdown li {
+	padding: .25em .5em;
+	cursor: pointer;
+}
+
+ul#colours-dropdown li:hover,
+ul#colours-dropdown li.active {
+	opacity: 1;
+	color: var(--bgcolour);
+	background: var(--colour);
 }
 
 div#overlay {

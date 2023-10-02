@@ -104,6 +104,7 @@ export async function connect(server_url) {
 		});
 	}
 
+	pre_buffer_chars = 0;
 	content.innerHTML = "";
 	server_indicator.innerText = "connecting...";
 

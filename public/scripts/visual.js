@@ -1,14 +1,3 @@
-/*
- * binds visual functions to the window
- */
-export function bind() {
-	window.PALETTE = PALETTE;
-	window.set_palette = set_palette;
-	window.set_colours = set_colours;
-	window.clear_colours = clear_colours;
-	window.toggle_lcd = toggle_lcd;
-}
-
 const PALETTE = {
 	ari: ["#b7fd49", "#111111"],
 	mono: ["#ffffff", "#111111"],
@@ -46,6 +35,80 @@ const PALETTE = {
 		},
 	},
 };
+
+/*
+ * binds visual functions to the window
+ */
+export function bind() {
+	window.PALETTE = PALETTE;
+	window.set_palette = set_palette;
+	window.set_colours = set_colours;
+	window.clear_colours = clear_colours;
+	window.toggle_lcd = toggle_lcd;
+
+	const colours_toggle = document.getElementById("colours");
+	const dropdown = document.getElementById("colours-dropdown");
+
+	colours_toggle.addEventListener("click", () => {
+		dropdown.classList.toggle("active");
+	});
+
+	function create_theme_list_item(name, palette) {
+		const list_item = document.createElement("li");
+		list_item.innerText = name;
+
+		list_item.addEventListener("click", () => {
+			set_palette(palette);
+		});
+
+		// previewing themes pre-selection
+		// there are epilepsy concerns regarding this, so i've disabled it for now
+		/*
+		list_item.addEventListener("mouseenter", () => {
+			document.documentElement.style.setProperty('--colour', palette[0]);
+			document.documentElement.style.setProperty('--bgcolour', palette[1]);
+		});
+
+		list_item.addEventListener("mouseleave", () => {
+			document.documentElement.style.setProperty('--colour', localStorage.getItem("foreground"));
+			document.documentElement.style.setProperty('--bgcolour', localStorage.getItem("background"));
+		});
+		*/
+		
+		return list_item;
+	}
+
+	function iterate_palette(palette, parent_key = "") {
+		var named_palettes = [];
+		for (const key in palette) {
+			if (!palette.hasOwnProperty(key)) continue;
+			
+			const nested_key = parent_key ? `${parent_key}.${key}` : key;
+
+			if (palette[key].constructor == Object) {
+				named_palettes.push(...iterate_palette(palette[key], nested_key));
+			} else {
+				named_palettes.push({
+					name: nested_key,
+					colours: palette[key]
+				});
+			}
+		}
+		return named_palettes;
+	}
+
+	const named_palettes = iterate_palette(PALETTE);
+
+	for (var i = 0; i < named_palettes.length; i++) {
+		const name = named_palettes[i].name;
+		const palette = named_palettes[i].colours;
+		dropdown.appendChild(create_theme_list_item(name, palette));
+	}
+
+	const lcd_toggle = document.getElementById("lcd");
+
+	lcd_toggle.addEventListener("click", toggle_lcd);
+}
 
 /*
  * sets the colour palette using the name ("example.palette") or reference to a palette (PALETTE.example)
