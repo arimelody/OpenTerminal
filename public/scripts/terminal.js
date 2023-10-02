@@ -21,6 +21,10 @@ const DATA_TYPES = {
 	arrow: 6,
 };
 
+/**
+ * starting OpenTerminal!
+ * "we have `int main()` at home"
+ */
 export function start() {
 	console.log("%chello, world!", "color: #b7fd49; font-size: 3rem; font-weight: bold");
 	console.log(
@@ -81,6 +85,12 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 	connect(new URL(window.location).searchParams.get("server") || window.location.host);
 }
 
+/**
+ * closes any existing websocket connection and attempts to create a new one. 
+ * `wss://` is prefixed automatically if not present.
+ * insecure websockets are not recommended and support is not planned.
+ * @param {string} server_url - the server websocket url to connect to.
+ */
 export async function connect(server_url) {
 	if (client && client.readyState == 1) { // OPEN
 		client.close();
@@ -109,7 +119,7 @@ export async function connect(server_url) {
 		new_caret();
 	});
 
-	client.addEventListener('message', event => { handle_message(JSON.parse(event.data)) });
+	client.addEventListener('message', handle_message);
 
 	client.addEventListener('close', () => {
 		server_indicator.innerText = "not connected";
@@ -122,6 +132,10 @@ export async function connect(server_url) {
 	});
 }
 
+/**
+ * appends a client-side message to the text buffer.
+ * @param {string} text - text to send to the buffer.
+ */
 function add_system_message(text) {
 	const span = document.createElement("span");
 	span.classList.add('sticky');
@@ -131,7 +145,17 @@ function add_system_message(text) {
 	new_caret();
 }
 
-function handle_message(data) {
+/**
+ * the message handler for the websocket.
+ */
+function handle_message(event) {
+	var data;
+	try {
+		data = JSON.parse(event.data);
+	} catch (error) {
+		return false;
+	}
+
 	if (!data.type && data.type != 0) return;
 
 	const is_at_bottom = content.scrollHeight - content.offsetHeight - content.scrollTop < 10;
@@ -185,6 +209,9 @@ function handle_message(data) {
 	if (is_at_bottom) content.scrollTop = content.scrollHeight - content.offsetHeight;
 }
 
+/**
+ * clears any existing caret from the terminal, and replaces it at the end of the buffer.
+ */
 function new_caret() {
 	content.querySelectorAll("#caret").forEach(caret => caret.remove());
 	const new_caret = document.createElement("div");
@@ -195,6 +222,10 @@ function new_caret() {
 	content.appendChild(new_caret);
 }
 
+/**
+ * the input handler for the document.
+ * automatically scrolls to the bottom of the page on valid key presses.
+ */
 function handle_input(event) {
 	if (event.key == "'") {
 		event.preventDefault();
@@ -273,6 +304,12 @@ function handle_input(event) {
 	content.scrollTop = content.scrollHeight - content.offsetHeight;
 }
 
+/**
+ * paste event handler for the document.
+ * if there is nothing currently in-flight to the server, the contents
+ * of the clipboard are sent in one go to the server, and the user is
+ * automatically scrolled to the bottom of the page.
+ */
 function handle_paste(event) {
 	event.preventDefault();
 
