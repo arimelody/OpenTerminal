@@ -46,7 +46,7 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 	const foreground = localStorage.getItem("foreground");
 	const background = localStorage.getItem("background");
 	if (foreground && background) {
-		set_colours(foreground, background);
+		window.set_colours(foreground, background);
 	}
 
 	if (localStorage.getItem("lcd")) {
@@ -264,3 +264,4 @@ function handle_paste(event) {
 		text: paste,
 	});
 	content.scrollTop = content.scrollHeight - content.offsetHeight;
+}
