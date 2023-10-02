@@ -43,9 +43,12 @@ const MOTDS = [
 	"now fully open-source!",
 	"somehow not the worst communication app!",
 	"\"oh this is like nano but multiplayer\"",
+	"there's no place like 127.0.0.1",
+	"it's no emacs, but it'll do",
 ];
 
 const STATIC_PATH = path.join(process.cwd(), "public");
+const CACHE_MAX_AGE = 86400 // 1 day
 
 const BANNER =
 `Welcome to OpenTerminal!
@@ -99,7 +102,11 @@ const server = https.createServer(config, async (req, res) => {
 		return;
 	}
 	const mime_type = MIME_TYPES[file.ext] || MIME_TYPES.default;
-	res.writeHead(200, { "Content-Type": mime_type });
+	res.writeHead(200, {
+		"Content-Type": mime_type,
+		"Cache-Control": `max-age=${CACHE_MAX_AGE}`,
+		"Server": "OpenTerminal",
+	});
 	file.stream.pipe(res);
 	// console.log(`${req.method} - ${req.url}`);
 });
