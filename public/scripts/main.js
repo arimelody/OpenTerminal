@@ -233,7 +233,7 @@ function handle_input(event) {
 		return;
 	}
 
-	if (event.ctrlKey) {
+	if (event.ctrlKey || event.metaKey) {
 		return;
 	}
 
