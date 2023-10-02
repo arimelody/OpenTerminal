@@ -13,12 +13,12 @@ body {
 }
 
 main {
-	margin: 1rem 1rem 0 1rem;
+	margin: 0 1rem;
 	border: 1px solid var(--colour);
 }
 
 pre#content {
-	height: calc(100vh - 5rem);
+	height: calc(100vh - 6rem);
 	margin: 0;
 	padding: 1rem;
 	overflow-x: hidden;
@@ -46,7 +46,8 @@ div#caret {
 	}
 }
 
-footer {
+footer,
+header {
 	height: 18px;
 	padding: .5em 2em;
 	display: flex;
@@ -55,26 +56,31 @@ footer {
 	justify-content: space-between;
 }
 
-footer ul {
+footer ul,
+header ul {
 	margin: 0;
 	padding: 0;
 	display: flex;
 	gap: 1em;
 }
 
-footer li {
+footer li,
+header li {
 	list-style: none;
 	opacity: .5;
 }
 
-footer li:hover {
+footer li:has(a):hover,
+header li:has(a):hover {
 	text-shadow: 0 0 1em, 0 0 3em;
 	opacity: 1;
 }
 
-footer a {
+footer a,
+header a {
 	color: var(--colour);
 	text-decoration: none;
+	cursor: pointer;
 }
 
 div#overlay {

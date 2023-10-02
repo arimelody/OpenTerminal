@@ -2,6 +2,7 @@ var recv_buffer = [];
 var send_buffer = [];
 
 var content;
+var server_indicator;
 var mobile_input;
 
 var client;
@@ -54,6 +55,7 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 	}
 
 	content = document.getElementById("content");
+	server_indicator = document.getElementById("server-url");
 	mobile_input = document.getElementById("mobile-input");
 
 	document.addEventListener("keydown", handle_input);
@@ -63,11 +65,8 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 		mobile_input.focus();
 	});
 
-	add_system_message("Connecting to the server...");
-	
-	setTimeout(connect, 500);
-
 	setInterval(() => {
+		if (!client || !client.readyState == 1) return;
 		if (send_buffer.length > 0) {
 			const data = JSON.stringify(send_buffer[0]);
 			client.send(data);
@@ -75,20 +74,37 @@ to help you feel a little more comfortable, i've prepared some commands for you:
 		}
 	}, 1000 / 600);
 
-	loop();
+	setInterval(() => {
+		mobile_input.value = content.innerText;
+	}, 1000 / 60);
+
+	connect(new URL(window.location).searchParams.get("server") || window.location.host);
 }
 
-function loop() {
-	mobile_input.value = content.innerText;
+export async function connect(server_url) {
+	if (client && client.readyState == 1) { // OPEN
+		client.close();
 
-	setTimeout(loop, 1000 / 60);
-}
+		await new Promise((resolve) => {
+			setInterval(() => {
+				if (client.readyState == 3) {
+					resolve();
+				}
+			}, 100);
+		});
+	}
 
-function connect() {
-	client = new WebSocket("wss://" + server_url);
+	content.innerHTML = "";
+	server_indicator.innerText = "connecting...";
+
+	add_system_message("Connecting to the server...\n");
+
+	if (!server_url.startsWith("wss://")) server_url = "wss://" + server_url;
+	client = new WebSocket(server_url);
 
 	client.addEventListener('open', () => {
-		add_system_message(`\nConnection successful.\n\n`);
+		server_indicator.innerText = server_url.slice(6);
+		add_system_message(`Connection successful.\n\n`);
 		add_system_message(`=== BEGIN SESSION ===\n\n`);
 		new_caret();
 	});
@@ -96,7 +112,13 @@ function connect() {
 	client.addEventListener('message', event => { handle_message(JSON.parse(event.data)) });
 
 	client.addEventListener('close', () => {
-		add_system_message(`\n[CONNECTION LOST, PLEASE REFRESH]\n`);
+		server_indicator.innerText = "not connected";
+		add_system_message(`\n[CONNECTION CLOSED]\n`);
+	});
+
+	client.addEventListener('error', () => {
+		add_system_message(`\nConnection failed!\n`);
+		add_system_message("Ensure you entered the correct server URL, or check the console for more details.\n");
 	});
 }
 
