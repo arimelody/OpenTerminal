@@ -299,7 +299,7 @@ const PALETTE = {
 };
 
 function set_palette(palette) {
-	if (typeof(palette) === "object" && palette.isArray()) {
+	if (typeof(palette) === "object" && Array.isArray(palette)) {
 		set_colours(palette[0], palette[1]);
 		console.log(`Palette changed to [${palette}]`);
 		return true;
