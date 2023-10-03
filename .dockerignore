@@ -1,0 +1,8 @@
+node_modules/
+certs/
+.git/
+.DS_Store
+.gitignore
+README.md
+nodemon.json
+*.service
