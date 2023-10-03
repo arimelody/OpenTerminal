@@ -65,7 +65,7 @@ This connection will now terminate.
 `;
 
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8443;
 const PING_INTERVAL = 10000;
 let sockets = [];
 

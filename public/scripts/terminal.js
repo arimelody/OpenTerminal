@@ -10,6 +10,7 @@ var client;
 var my_colour = false;
 var pre_buffer_chars = 0;
 var server_url = "";
+var enable_input = true;
 
 const DATA_TYPES = {
 	ping: 0,
@@ -224,10 +225,21 @@ function new_caret() {
 }
 
 /**
+ * sets whether or not the terminal should accept user input
+ * (handy for not interfering with dialogs)
+ * @param {value} boolean 
+ */
+export function set_enable_input(value) {
+	enable_input = value;
+}
+
+/**
  * the input handler for the document.
  * automatically scrolls to the bottom of the page on valid key presses.
  */
 function handle_input(event) {
+	if (!enable_input) return;
+
 	if (event.key == "'") {
 		event.preventDefault();
 	}

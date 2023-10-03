@@ -1,0 +1,14 @@
+version: "3.9"
+services:
+  web:
+    build: .
+    image: openterminal
+    container_name: openterminal
+    ports:
+      - 443:443
+    volumes:
+      - ./certs/cert.crt:/srv/openterminal/certs/cert.crt
+      - ./certs/cert.key:/srv/openterminal/certs/cert.key
+    environment:
+      PORT: 443
+    restart: unless-stopped
