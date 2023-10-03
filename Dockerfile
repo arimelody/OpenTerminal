@@ -1,4 +1,4 @@
-FROM node:20-alpine3.18
+FROM --platform=linux/amd64 node:20-alpine3.18
 
 # set working directory
 WORKDIR /srv/openterminal
