@@ -18,11 +18,10 @@ jokes aside- while i do absolutely see how an open, self-moderated text buffer i
 ## roadmap
 
 - rewrite backend in go/rust (me no like javascript raaaahhh)
-- colour palette switcher in the UI (rather than in console)
 - multiple "channels" (at least if one gets flooded, there's somewhere else you can go)
+- master server (anyone can host a channel and post to the MS)
 
 ### "maybe" roadmap
 
-- master server (anyone can host a channel and post to the MS)
 - channel logs (for recovery in the event of a crash, as an optional feature)
 
