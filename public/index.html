@@ -52,11 +52,21 @@
 			</ul>
 		</footer>
 		<div id="dialog-backdrop"></div>
-		<div id="connect-dialog">
-			<button id="connect-close">X</button>
+		<div id="connect-dialog" class="dialog">
+			<button class="dialog-close">X</button>
 			<p>Enter the address of the server you would like to connect to:</p>	
 			<input id="connect-url" name="server" type="text" spellcheck="false">
 			<button id="connect-submit">Connect</button>
+		</div>
+		<div id="warn-dialog" class="dialog">
+			<button class="dialog-close">X</button>
+			<p>
+				WARNING: The server you're about to connect to is insecure.
+				Your activity here may be available to anyone monitoring your network traffic!
+				Are you sure you want to continue?
+			</p>
+			<button id="warn-proceed">Okay!</button>
+			<button id="warn-cancel">Nevermind!</button>
 		</div>
 		<div id="overlay"></div>
 	</body>

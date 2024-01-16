@@ -1,6 +1,7 @@
 :root {
 	--colour: #a6e3a1;
 	--bgcolour: #1e1e2e;
+	--warn-colour: #e83737;
 }
 
 body {
@@ -186,12 +187,10 @@ body.lcd pre#content {
 	z-index: 99;
 }
 
-#connect-dialog {
+div.dialog {
 	position: fixed;
 	top: 50%;
 	left: 50%;
-	max-width: calc(100vw - 4rem);
-	width: 16rem;
 	margin: auto auto;
 	padding: 1rem;
 	display: none;
@@ -203,42 +202,53 @@ body.lcd pre#content {
 	z-index: 99;
 }
 
-#dialog-backdrop.show,
-#connect-dialog.show {
-	display: block;
-}
-
-#connect-dialog p {
+div.dialog p {
 	margin: 0 0 1em 0;
 }
 
-#connect-dialog input {
+div.dialog input {
 	font-family: inherit;
-	color: var(--colour);
-	border: 1px solid var(--colour);
+	color: inherit;
+	border: inherit;
 	background: transparent;
 }
 
-#connect-dialog input::placeholder {
+div.dialog input::placeholder {
 	font-family: inherit;
-	color: var(--colour);
+	color: inherit;
 	opacity: .25;
 }
 
-#connect-dialog button {
+div.dialog button {
 	font-family: inherit;
-	border: 1px solid var(--colour);
-	color: var(--colour);
+	border: inherit;
+	color: inherit;
 	background: transparent;
 	cursor: pointer;
 }
 
-#connect-dialog #connect-close {
+#dialog-backdrop.show,
+div.dialog.show {
+	display: block;
+}
+
+div.dialog .dialog-close {
 	position: absolute;
 	top: -0.7em;
 	right: 1rem;
 	border: none;
 	background: var(--bgcolour);
+}
+
+#connect-dialog {
+	max-width: calc(100vw - 4rem);
+	width: 16rem;
+}
+
+#warn-dialog {
+	max-width: 18rem;
+	color: var(--warn-colour);
+	border-color: var(--warn-colour);
 }
 
 *:focus {

@@ -6,11 +6,12 @@ document.addEventListener("DOMContentLoaded", () => {
 	Terminal.start();
 
 	const dialog_backdrop = document.getElementById("dialog-backdrop");
+
 	const connect_button = document.getElementById("connect");
 	const connect_dialog = document.getElementById("connect-dialog");
 	const connect_url = document.getElementById("connect-url");
 	const connect_submit = document.getElementById("connect-submit");
-	const connect_close = document.getElementById("connect-close");
+	const connect_close = connect_dialog.getElementsByClassName("dialog-close").item(0);
 
 	connect_url.placeholder = window.location.host;
 
@@ -24,8 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	connect_submit.addEventListener("click", () => {
 		connect_close.click();
-		const new_server = connect_url.value;
-		if (!new_server) return;
+		const new_server = connect_url.value || window.location.host;
 		Terminal.connect(new_server);
 	});
 
@@ -41,10 +41,14 @@ document.addEventListener("DOMContentLoaded", () => {
 		return;
 	});
 
-	connect_close.addEventListener("click", () => {
-		connect_dialog.classList.remove("show");
-		dialog_backdrop.classList.remove("show");
-		Terminal.set_enable_input(true);
+	[...document.getElementsByClassName("dialog-close")].forEach(dialog_close => {
+		dialog_close.addEventListener("click", () => {
+			[...document.getElementsByClassName("dialog")].forEach(element => {
+				element.classList.remove("show");
+			});
+			dialog_backdrop.classList.remove("show");
+			Terminal.set_enable_input(true);
+		});
 	});
 
 	dialog_backdrop.addEventListener("click", () => {
