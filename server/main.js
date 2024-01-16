@@ -1,12 +1,7 @@
 const fs = require('fs');
-const https = require('https');
+const http = require('http');
 const path = require('path');
 const Websocket = require('ws');
-
-const config = {
-	cert: fs.readFileSync(process.env.SSL_CERT || './certs/cert.crt'),
-	key: fs.readFileSync(process.env.SSL_KEY || './certs/cert.key'),
-}
 
 const MIME_TYPES = {
 	default: "application/octet-stream",
@@ -65,7 +60,7 @@ This connection will now terminate.
 `;
 
 
-const PORT = process.env.PORT || 8443;
+const PORT = process.env.PORT || 8080;
 const PING_INTERVAL = 10000;
 let sockets = [];
 
@@ -74,7 +69,7 @@ const MAX_BUFFER_SIZE = 1024 * 1000;
 const MAX_MESSAGE_LENGTH = 1024;
 
 /**
- * simple file fetching for the HTTPS server
+ * simple file fetching for the HTTP server
  */
 async function get_file(url) {
 	// ignore query params...not very helpful when getting files!
@@ -94,7 +89,7 @@ async function get_file(url) {
 	return { stream, ext };
 }
 
-const server = https.createServer(config, async (req, res) => {
+const server = http.createServer(async (req, res) => {
 	const file = await get_file(req.url);
 	if (!file) {
 		res.writeHead(404);
@@ -226,7 +221,7 @@ function generate_colour() {
 }
 
 server.listen(PORT, () => {
-	console.log(`OpenTerminal is now LIVE on https://127.0.0.1:${PORT}!`);
+	console.log(`OpenTerminal is now LIVE on http://127.0.0.1:${PORT}`);
 });
 
 /**

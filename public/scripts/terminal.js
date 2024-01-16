@@ -111,11 +111,64 @@ export async function connect(server_url) {
 
 	add_system_message("Connecting to the server...\n");
 
-	if (!server_url.startsWith("wss://")) server_url = "wss://" + server_url;
-	client = new WebSocket(server_url);
+	let protocol = false;
+
+	// check if user explicitly stated secure/insecure protocol
+	if (server_url.startsWith("wss://")) {
+		protocol = "wss://";
+		server_url = server_url.split(6);
+	} else if (server_url.startsWith("ws://")) {
+		server_url = server_url.split(5);
+		protocol = "ws://";
+	}
+	// otherwise, probe the url!
+	else protocol = await get_available_socket_protocol(server_url);
+
+	// no server was found!
+	if (!protocol) {
+		return add_system_message(`\n[NO SERVER FOUND AT ${server_url}!]\n`);
+	}
+
+	// server was found, but it's insecure!
+	if (protocol === "ws://") {
+		const warn_dialog = document.getElementById("warn-dialog");
+		const warn_close = warn_dialog.getElementsByClassName("dialog-close").item(0);
+		const user_wants_insecure = await new Promise((Resolve, Reject) => {
+			const dialog_backdrop = document.getElementById("dialog-backdrop");
+			const warn_proceed = document.getElementById("warn-proceed");
+			const warn_cancel = document.getElementById("warn-cancel");
+
+			warn_dialog.classList.add("show");
+			dialog_backdrop.classList.add("show");
+
+			set_enable_input(false);
+
+			warn_close.addEventListener('click', () => {
+				Resolve(false);
+			});
+			warn_cancel.addEventListener('click', () => {
+				Resolve(false);
+			});
+			warn_proceed.addEventListener('click', () => {
+				Resolve(true);
+			});
+		});
+
+		warn_close.click();
+
+		set_enable_input(true);
+
+		if (!user_wants_insecure) {
+			server_indicator.innerText = "not connected";
+			add_system_message(`\n[CONNECTION CLOSED]\n`);
+			return;
+		}
+	}
+
+	client = new WebSocket(protocol + server_url);
 
 	client.addEventListener('open', () => {
-		server_indicator.innerText = server_url.slice(6);
+		server_indicator.innerText = server_url;
 		add_system_message(`Connection successful.\n\n`);
 		add_system_message(`=== BEGIN SESSION ===\n\n`);
 		new_caret();
@@ -131,6 +184,34 @@ export async function connect(server_url) {
 	client.addEventListener('error', () => {
 		add_system_message(`\nConnection failed!\n`);
 		add_system_message("Ensure you entered the correct server URL, or check the console for more details.\n");
+	});
+}
+
+/**
+ * probes the `server_url` for a secure websocket connection first, an insecure websocket second, or resolves to `false` on failure.
+ * @param {string} server_url 
+ * @returns a promise either resolving to the discovered protocol, or false on failure.
+ */
+function get_available_socket_protocol(server_url) {
+	return new Promise((Resolve, Reject) => {
+		const secure_client = new WebSocket("wss://" + server_url);
+
+		secure_client.addEventListener('open', () => {
+			Resolve("wss://");
+		});
+
+		secure_client.addEventListener('error', () => {
+			const insecure_client = new WebSocket("ws://" + server_url);
+
+			insecure_client.addEventListener('open', () => {
+				Resolve("ws://");
+			});
+
+			insecure_client.addEventListener('error', () => {
+				Reject(false);
+			});
+
+		});
 	});
 }
 
