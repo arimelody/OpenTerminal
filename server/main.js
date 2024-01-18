@@ -81,8 +81,8 @@ async function get_file(url) {
 
 	// check for path traversal. path traversal is...bad.
 	const path_traversal = !file_path.startsWith(STATIC_PATH);
-	const exists = await fs.promises.access(file_path).then(...[() => true, () => false]);
-	if (path_traversal || !exists) return false;
+	const exists = fs.existsSync(file_path) && fs.statSync(file_path).isFile();
+	if (path_traversal || !exists) return false;	
 
 	const ext = path.extname(file_path).substring(1).toLowerCase();
 	const stream = fs.createReadStream(file_path);
