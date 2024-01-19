@@ -91,7 +91,7 @@ to help you feel a little more comfortable, i've prepared some commands for you:
  * closes any existing websocket connection and attempts to create a new one.
  * @param {string} server_url - the server websocket url to connect to.
  */
-export async function connect(server_url) {
+export async function connect(url) {
 	if (client && client.readyState == 1) { // OPEN
 		client.close();
 
@@ -140,9 +140,18 @@ export async function connect(server_url) {
  */
 function add_client_events(client) {
 	client.addEventListener('open', async () => {
-		console.log(`Successfully connected to ${client.url}.`);
+		server_url = client.url;
+		console.log(`Successfully connected to ${server_url}.`);
 
-		server_indicator.innerText = server_url;
+		server_indicator.innerText = function() {
+			if (client.url.startsWith("ws://"))
+				return client.url.slice(5, -1);
+			else if (client.url.startsWith("wss://"))
+				return client.url.slice(6, -1);
+			else
+				return client.url;
+		}();
+
 		add_system_message(`Connection successful.\n\n`);
 		add_system_message(`=== BEGIN SESSION ===\n\n`);
 
