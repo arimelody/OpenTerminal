@@ -22,6 +22,8 @@ jokes aside- while i do absolutely see how an open, self-moderated text buffer i
 - `npm ci` to install dependencies
 - `npm run start`, and you should be good to do!
 
+alternatively, you can `git clone` this repo and `docker build` a container if you like. we do not yet have official openterminal images on a public repo, sorry!
+
 OpenTerminal also makes use of environment variables for server hosts who want a bit more control of their setup:
 
 - `OPENTERM_HOST` - the address to bind OpenTerminal's http and websocket server. (default 0.0.0.0)
