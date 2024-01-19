@@ -130,10 +130,10 @@ function log_request(req, res, time) {
 }
 
 function get_real_address(req) {
-	if (TRUSTED_PROXIES.indexOf(req.socket.localAddress) !== -1 && req.headers['x-forwarded-for']) {
+	if (TRUSTED_PROXIES.indexOf(req.connection.remoteAddress) !== -1 && req.headers['x-forwarded-for']) {
 		return req.headers['x-forwarded-for'];
 	}
-	return req.socket.localAddress;
+	return req.connection.remoteAddress;
 }
 
 const wss = new Websocket.Server({ server });
