@@ -2,6 +2,8 @@ import * as Terminal from "./terminal.js";
 import * as Visual from "./visual.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+	document.getElementById("version").textContent = Terminal.VERSION;
+
 	Visual.bind();
 	Terminal.start();
 
@@ -56,3 +58,37 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 });
 
+/**
+ * requests that the user confirm they wish to connect to an insecure (ws://) server.
+ * @returns a promise returning `true` or `false` based on user input.
+ */
+export async function user_confirm_insecure() {
+	const warn_dialog = document.getElementById("warn-dialog");
+	const warn_close = warn_dialog.getElementsByClassName("dialog-close").item(0);
+	const dialog_backdrop = document.getElementById("dialog-backdrop");
+	const warn_proceed = document.getElementById("warn-proceed");
+	const warn_cancel = document.getElementById("warn-cancel");
+
+	warn_dialog.classList.add("show");
+	dialog_backdrop.classList.add("show");
+
+	const user_input = await new Promise((Resolve, Reject) => {
+		warn_close.addEventListener('click', () => {
+			Resolve(false);
+		});
+		warn_cancel.addEventListener('click', () => {
+			warn_close.click();
+		});
+		dialog_backdrop.addEventListener("click", () => {
+			warn_close.click();
+		});
+		warn_proceed.addEventListener('click', () => {
+			Resolve(true);
+		});
+	});
+
+	warn_dialog.classList.remove("show");
+	dialog_backdrop.classList.remove("show");
+
+	return user_input;
+}

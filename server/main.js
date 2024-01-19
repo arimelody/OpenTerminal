@@ -3,6 +3,8 @@ const http = require('http');
 const path = require('path');
 const Websocket = require('ws');
 
+const VERSION = "1.1.0";
+
 const MIME_TYPES = {
 	default: "application/octet-stream",
 	html: "text/html; charset=UTF-8",
@@ -23,6 +25,7 @@ const DATA_TYPES = {
 	backspace: 4,
 	backword: 5,
 	arrow: 6,
+	version: 7,
 };
 
 const MOTDS = [
@@ -43,7 +46,7 @@ const MOTDS = [
 ];
 
 const STATIC_PATH = path.join(process.cwd(), "public");
-const CACHE_MAX_AGE = 86400 // 1 day
+const CACHE_MAX_AGE = 14400 // 4 hours
 
 const BANNER =
 `Welcome to OpenTerminal!
@@ -58,9 +61,15 @@ Please acquire a genuine copy.
 This connection will now terminate.
 =========================================
 `;
+const VERSION_ERROR =
+`Your client does not match this server's version of OpenTerminal (${VERSION})!
+If you are connecting to this site's own OpenTerminal server, please refresh the page or clear your browser's cache to update.
+`
 
-
-const PORT = process.env.PORT || 8080;
+console.log("using env vars: " + Object.keys(process.env).filter(value => { return value.startsWith("OPENTERM_") }).join(', '));
+const HOST = process.env.OPENTERM_HOST || '0.0.0.0';
+const PORT = process.env.OPENTERM_PORT || 8080;
+const TRUSTED_PROXIES = process.env.OPENTERM_TRUSTED_PROXIES ? process.env.OPENTERM_TRUSTED_PROXIES.split(',') : [];
 const PING_INTERVAL = 10000;
 let sockets = [];
 
@@ -81,20 +90,28 @@ async function get_file(url) {
 
 	// check for path traversal. path traversal is...bad.
 	const path_traversal = !file_path.startsWith(STATIC_PATH);
-	const exists = await fs.promises.access(file_path).then(...[() => true, () => false]);
+	const exists = fs.existsSync(file_path) && fs.statSync(file_path).isFile();
 	if (path_traversal || !exists) return false;
 
 	const ext = path.extname(file_path).substring(1).toLowerCase();
-	const stream = fs.createReadStream(file_path);
-	return { stream, ext };
+
+	try {
+		const data = await fs.promises.readFile(file_path, { encoding: 'utf8' });
+		return { data, ext };
+	} catch (error) {
+		console.error(error);
+		return false;
+	}
+	
 }
 
 const server = http.createServer(async (req, res) => {
+	const request_time = new Date().getTime();
 	const file = await get_file(req.url);
-	if (!file) {
+	if (file === false) {
 		res.writeHead(404);
-		res.end();
-		return;
+		res.end("404 not found!");
+		return log_request(req, res, request_time);
 	}
 	const mime_type = MIME_TYPES[file.ext] || MIME_TYPES.default;
 	res.writeHead(200, {
@@ -102,12 +119,26 @@ const server = http.createServer(async (req, res) => {
 		"Cache-Control": `max-age=${CACHE_MAX_AGE}`,
 		"Server": "OpenTerminal",
 	});
-	file.stream.pipe(res);
-	// console.log(`${req.method} - ${req.url}`);
+	res.write(file.data);
+	res.end();
+	return log_request(req, res, request_time);
 });
 
+function log_request(req, res, time) {
+	const elapsed = new Date().getTime() - time;
+	console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - ${res.statusCode} - ${get_real_address(req)} in ${elapsed}ms`);
+}
+
+function get_real_address(req) {
+	if (TRUSTED_PROXIES.indexOf(req.socket.localAddress) !== -1 && req.headers['x-forwarded-for']) {
+		return req.headers['x-forwarded-for'];
+	}
+	return req.socket.localAddress;
+}
+
 const wss = new Websocket.Server({ server });
-wss.on('connection', socket => {
+wss.on('connection', (socket, req) => {
+	console.log(`${new Date().toISOString()} - WS OPEN - ${get_real_address(req)} (active connections: ${sockets.length + 1})`);
 	/*
 	socket.colour = generate_colour();
 	socket.send(JSON.stringify({
@@ -128,17 +159,15 @@ wss.on('connection', socket => {
 		}));
 	}
 
-	const ping_interval = setInterval(
+	const ping_routine = setInterval(
 		function() {
 			socket.send(JSON.stringify({
 				type: DATA_TYPES.ping,
 			}))
 		}, PING_INTERVAL);
-	socket.ping_interval = ping_interval;
+	socket.ping_routine = ping_routine;
 
 	sockets.push(socket);
-
-	// console.log(`new connection.\n\tcurrent connections: ${sockets.length}`);
 
 	socket.on('message', event => {
 		try {
@@ -153,7 +182,7 @@ wss.on('connection', socket => {
 	});
 
 	socket.on('close', () => {
-		clearInterval(socket.ping_interval);
+		clearInterval(socket.ping_routine);
 		sockets = sockets.filter(s => s !== socket);
 		// console.log(`connection closed.\n\tcurrent connections: ${sockets.length}`);
 	});
@@ -163,6 +192,27 @@ wss.on('connection', socket => {
  * handles parsed JSON data sent by the client.
  */
 function handle_message(data, user) {
+	if (user.version === undefined) {
+		if (data.type !== DATA_TYPES.version) {
+			user.send(JSON.stringify({
+				type: DATA_TYPES.text,
+				text: VERSION_ERROR
+			}));
+			user.close();
+			return;
+		} else if (data.text !== VERSION) {
+			user.send(JSON.stringify({
+				type: DATA_TYPES.text,
+				text: VERSION_ERROR
+			}));
+			user.close();
+			return;
+		} else {
+			user.version = data.text;
+			return;
+		}
+	}
+
 	switch (data.type) {
 		case DATA_TYPES.backword:
 			var break_point = buffer.lastIndexOf(" ");
@@ -220,8 +270,9 @@ function generate_colour() {
 	return result;
 }
 
-server.listen(PORT, () => {
-	console.log(`OpenTerminal is now LIVE on http://127.0.0.1:${PORT}`);
+server.listen(PORT, HOST, () => {
+	console.log(`OpenTerminal is now LIVE on http://${HOST === '0.0.0.0' ? '127.0.0.1' : HOST}:${PORT}`);
+	if (TRUSTED_PROXIES.length > 0) console.log(`Using X-Forwarded-For headers for hosts: ${TRUSTED_PROXIES.join(", ")}`);
 });
 
 /**
