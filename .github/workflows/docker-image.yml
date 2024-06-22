@@ -22,4 +22,4 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: docker.arimelody.me/openterminal:$(date +%s)
+          tags: docker.arimelody.me/openterminal:latest
