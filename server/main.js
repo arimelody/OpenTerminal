@@ -1,7 +1,7 @@
-const fs = require('fs');
-const http = require('http');
-const path = require('path');
-const Websocket = require('ws');
+import fs from 'fs';
+import http from 'http';
+import path from 'path';
+import WebSocket from 'ws';
 
 const VERSION = "1.1.0";
 
@@ -136,7 +136,7 @@ function get_real_address(req) {
 	return req.connection.remoteAddress;
 }
 
-const wss = new Websocket.Server({ server });
+const wss = new WebSocket.Server({ server });
 wss.on('connection', (socket, req) => {
 	console.log(`${new Date().toISOString()} - WS OPEN - ${get_real_address(req)} (active connections: ${sockets.length + 1})`);
 	/*
@@ -271,7 +271,7 @@ function generate_colour() {
 }
 
 server.listen(PORT, HOST, () => {
-	console.log(`OpenTerminal is now LIVE on http://${HOST === '0.0.0.0' ? '127.0.0.1' : HOST}:${PORT}`);
+	console.log(`OpenTerminal is now LIVE on http://${HOST}:${PORT}`);
 	if (TRUSTED_PROXIES.length > 0) console.log(`Using X-Forwarded-For headers for hosts: ${TRUSTED_PROXIES.join(", ")}`);
 });
 
