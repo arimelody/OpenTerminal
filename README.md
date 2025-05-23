@@ -1,3 +1,8 @@
+> [!IMPORTANT]
+> this repository is archived as i migrate away from github.
+>
+> active repositories can be found on [codeberg](https://codeberg.org/arimelody/OpenTerminal) and [ari's forge](https://git.arimelody.me/ari/OpenTerminal)!
+
 # OpenTerminal
 
 An online terminal and communal text buffer
